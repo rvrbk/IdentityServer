@@ -9,7 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace AuthServer
+namespace API
 {
     public class Startup
     {
@@ -23,10 +23,14 @@ namespace AuthServer
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddIdentityServer()
-                .AddDeveloperSigningCredential()
-                .AddInMemoryApiResources(Config.GetResources())
-                .AddInMemoryClients(Config.GetClients());
+            services.AddAuthentication("Bearer")
+                .AddIdentityServerAuthentication(options => {
+                    options.Authority = "http://localhost:60054";
+                    options.RequireHttpsMetadata = false;
+                    options.ApiName = "api1";
+                });
+
+            services.AddMvc();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -37,7 +41,9 @@ namespace AuthServer
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseIdentityServer();
+            app.UseAuthentication();
+            app.UseMvc();
         }
     }
 }
+
