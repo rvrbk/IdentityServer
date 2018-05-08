@@ -9,7 +9,8 @@ namespace Client
     {
         static void Main(string[] args)
         {
-            GetThings();
+            //GetThings();
+            GetRwClient();
 
             Console.ReadLine();
         }
@@ -48,6 +49,43 @@ namespace Client
             {
                 var content = await apiresponse.Content.ReadAsStringAsync();
                 Console.WriteLine(JArray.Parse(content));
+            }
+        }
+
+        static async void GetRwClient()
+        {
+            var endpoint = await DiscoveryClient.GetAsync("http://localhost:50122/");
+
+            if (endpoint.IsError == true)
+            {
+                Console.WriteLine(endpoint.Error);
+                return;
+            }
+
+            var token = new TokenClient(endpoint.TokenEndpoint, "1", "secret");
+            var response = await token.RequestClientCredentialsAsync("api");
+
+            if (response.IsError == true)
+            {
+                Console.WriteLine(response.Error);
+                return;
+            }
+
+            Console.WriteLine(response.Json);
+
+            var client = new HttpClient();
+            client.SetBearerToken(response.AccessToken);
+
+            var apiresponse = await client.GetAsync("http://localhost:54240/Patient/rvrbk");
+
+            if (!apiresponse.IsSuccessStatusCode)
+            {
+                Console.WriteLine(apiresponse.StatusCode);
+            }
+            else
+            {
+                var content = await apiresponse.Content.ReadAsStringAsync();
+                Console.WriteLine(JObject.Parse(content));
             }
         }
     }

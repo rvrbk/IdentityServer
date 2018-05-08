@@ -12,7 +12,8 @@ namespace AuthServer
         {
             return new List<ApiResource>
             {
-                new ApiResource("api1", "My API")
+                new ApiResource("api1", "My API"),
+                new ApiResource("rw-fhir", "RW FHIR")
             };
         }
 
@@ -29,6 +30,16 @@ namespace AuthServer
                         new Secret("secret".Sha256())
                     },
                     AllowedScopes = { "api1" }
+                },
+                new Client
+                {
+                    ClientId = "rw-fhir-client",
+                    AllowedGrantTypes = GrantTypes.ClientCredentials,
+                    ClientSecrets =
+                    {
+                        new Secret("blaat".Sha256())
+                    },
+                    AllowedScopes = { "rw-fhir" }
                 }
             };
         }
